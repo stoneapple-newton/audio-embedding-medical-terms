@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Listening for Medical Terms — A Plain-Language Guide</title>
+<style>
+  :root{
+    --bg:#faf6f0;
+    --ink:#2b2622;
+    --ink-soft:#6b6259;
+    --accent:#b4552d;
+    --accent-soft:#f3e2d8;
+    --teal:#3e6b5e;
+    --teal-soft:#e2ece8;
+    --amber:#a67c1e;
+    --amber-soft:#f5ecd8;
+    --card:#ffffff;
+    --line:#e8dfd2;
+    --radius:16px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif;}
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px;}
+
+  /* ---- Nav ---- */
+  nav{
+    position:sticky;top:0;z-index:50;
+    background:rgba(250,246,240,.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{display:flex;align-items:center;gap:8px;overflow-x:auto;padding-top:10px;padding-bottom:10px;scrollbar-width:none;}
+  nav .wrap::-webkit-scrollbar{display:none;}
+  nav .brand{font-weight:700;font-size:14px;letter-spacing:.04em;color:var(--accent);white-space:nowrap;margin-right:12px;}
+  nav a{
+    color:var(--ink-soft);text-decoration:none;font-size:13.5px;white-space:nowrap;
+    padding:5px 11px;border-radius:999px;transition:.15s;
+  }
+  nav a:hover{background:var(--accent-soft);color:var(--accent);}
+
+  /* ---- Hero ---- */
+  header.hero{padding:72px 0 56px;text-align:center;}
+  .kicker{
+    display:inline-block;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--teal);background:var(--teal-soft);padding:6px 14px;border-radius:999px;margin-bottom:20px;
+  }
+  header.hero h1{font-size:clamp(30px,5.2vw,52px);line-height:1.15;margin-bottom:18px;}
+  header.hero h1 em{color:var(--accent);font-style:normal;}
+  header.hero p.sub{
+    max-width:640px;margin:0 auto 26px;font-size:17.5px;color:var(--ink-soft);
+  }
+  .analogy{
+    display:inline-flex;align-items:center;gap:10px;
+    background:var(--card);border:1px solid var(--line);border-radius:999px;
+    padding:10px 20px;font-size:14.5px;color:var(--ink-soft);
+    box-shadow:0 2px 10px rgba(43,38,34,.05);
+  }
+  .analogy strong{color:var(--ink);}
+
+  section{padding:56px 0;}
+  .sec-label{
+    font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;font-weight:600;
+  }
+  h2{font-size:clamp(24px,3.6vw,34px);line-height:1.25;margin-bottom:14px;}
+  .lead{font-size:16.5px;color:var(--ink-soft);max-width:720px;margin-bottom:32px;}
+
+  /* ---- Cards ---- */
+  .grid{display:grid;gap:18px;}
+  .grid.cols-3{grid-template-columns:repeat(3,1fr);}
+  .grid.cols-2{grid-template-columns:repeat(2,1fr);}
+  .grid.cols-4{grid-template-columns:repeat(4,1fr);}
+  @media(max-width:820px){.grid.cols-3,.grid.cols-4{grid-template-columns:1fr 1fr;}}
+  @media(max-width:560px){.grid.cols-3,.grid.cols-4,.grid.cols-2{grid-template-columns:1fr;}}
+
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:24px;box-shadow:0 2px 12px rgba(43,38,34,.04);
+  }
+  .card h3{font-size:18px;margin-bottom:8px;}
+  .card p{font-size:14.5px;color:var(--ink-soft);}
+  .num-badge{
+    width:38px;height:38px;border-radius:12px;background:var(--accent-soft);color:var(--accent);
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px;margin-bottom:14px;
+    font-family:Georgia,serif;
+  }
+  .num-badge.teal{background:var(--teal-soft);color:var(--teal);}
+
+  /* ---- Problem example ---- */
+  .example{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:28px;display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:center;
+    box-shadow:0 2px 12px rgba(43,38,34,.04);
+  }
+  @media(max-width:640px){.example{grid-template-columns:1fr;text-align:center;}}
+  .example .side .tag{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px;}
+  .example .side .word{font-family:Georgia,serif;font-size:26px;}
+  .example .side.said .word{color:var(--teal);}
+  .example .side.heard .word{color:var(--accent);}
+  .example .arrow{font-size:26px;color:var(--ink-soft);}
+  .example .note{grid-column:1/-1;font-size:14px;color:var(--ink-soft);border-top:1px dashed var(--line);padding-top:16px;}
+
+  /* ---- Phase timeline ---- */
+  .phase{
+    display:grid;grid-template-columns:64px 1fr;gap:20px;
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:24px;margin-bottom:16px;box-shadow:0 2px 12px rgba(43,38,34,.04);
+  }
+  @media(max-width:560px){.phase{grid-template-columns:1fr;}}
+  .phase .icon{
+    width:56px;height:56px;border-radius:16px;background:var(--teal-soft);
+    display:flex;align-items:center;justify-content:center;font-size:26px;
+  }
+  .phase h3{font-size:18.5px;margin-bottom:4px;}
+  .phase .plain{font-size:15px;color:var(--ink);margin-bottom:8px;}
+  .phase .detail{font-size:14px;color:var(--ink-soft);}
+  .pills{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;}
+  .pill{
+    font-size:12px;font-weight:600;padding:4px 12px;border-radius:999px;letter-spacing:.02em;
+  }
+  .pill.built{background:var(--teal-soft);color:var(--teal);}
+  .pill.partial{background:var(--amber-soft);color:var(--amber);}
+  .pill.planned{background:var(--accent-soft);color:var(--accent);}
+
+  /* ---- Status board ---- */
+  .status-board{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  @media(max-width:640px){.status-board{grid-template-columns:1fr;}}
+  .status-col{border-radius:var(--radius);padding:24px;border:1px solid var(--line);}
+  .status-col.yes{background:#f2f7f4;}
+  .status-col.no{background:#faf1ec;}
+  .status-col h3{display:flex;align-items:center;gap:10px;font-size:17px;margin-bottom:16px;}
+  .status-col ul{list-style:none;}
+  .status-col li{
+    font-size:14.5px;color:var(--ink-soft);padding:9px 0 9px 26px;position:relative;
+    border-bottom:1px dashed var(--line);
+  }
+  .status-col li:last-child{border-bottom:none;}
+  .status-col.yes li::before{content:"✓";position:absolute;left:0;color:var(--teal);font-weight:700;}
+  .status-col.no li::before{content:"→";position:absolute;left:0;color:var(--accent);font-weight:700;}
+
+  /* ---- Demo ---- */
+  .demo{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:28px;box-shadow:0 2px 12px rgba(43,38,34,.04);
+  }
+  .demo-btns{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px;}
+  .demo-btns button{
+    font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;
+    border:1.5px solid var(--line);background:var(--bg);color:var(--ink);
+    padding:9px 18px;border-radius:999px;transition:.15s;
+  }
+  .demo-btns button:hover{border-color:var(--accent);color:var(--accent);}
+  .demo-btns button.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .wavebox{display:flex;align-items:flex-end;gap:3px;height:72px;margin-bottom:6px;}
+  .wavebox .bar{
+    flex:1;background:var(--teal);border-radius:3px 3px 0 0;min-height:6px;
+    transition:height .5s ease;opacity:.85;
+  }
+  .wave-caption{font-size:13px;color:var(--ink-soft);margin-bottom:22px;}
+  .result-row{margin-bottom:14px;}
+  .result-row .rhead{display:flex;justify-content:space-between;font-size:14.5px;margin-bottom:5px;}
+  .result-row .rhead .term{font-weight:600;}
+  .result-row .rhead .score{color:var(--ink-soft);font-variant-numeric:tabular-nums;}
+  .meter{height:10px;background:var(--bg);border-radius:999px;overflow:hidden;border:1px solid var(--line);}
+  .meter .fill{height:100%;background:var(--teal);border-radius:999px;width:0;transition:width .8s ease;}
+  .result-row.top .meter .fill{background:var(--accent);}
+  .demo-verdict{
+    margin-top:18px;padding:14px 18px;border-radius:12px;font-size:14.5px;
+    background:var(--amber-soft);color:#6d5410;border:1px solid #e8d9b0;
+  }
+  .demo-note{margin-top:16px;font-size:13.5px;color:var(--ink-soft);border-top:1px dashed var(--line);padding-top:14px;}
+
+  /* ---- Safety ---- */
+  .safety-icon{
+    width:44px;height:44px;border-radius:12px;background:var(--accent-soft);
+    display:flex;align-items:center;justify-content:center;font-size:21px;margin-bottom:14px;
+  }
+
+  /* ---- Glossary ---- */
+  .glossary dt{font-weight:700;font-size:15px;margin-bottom:3px;}
+  .glossary dd{font-size:14px;color:var(--ink-soft);margin-bottom:0;}
+  .glossary .card{padding:20px 22px;}
+  .g-term{color:var(--teal);}
+
+  footer{
+    border-top:1px solid var(--line);margin-top:24px;padding:36px 0 48px;
+    font-size:13.5px;color:var(--ink-soft);
+  }
+  footer .disc{
+    background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:18px 22px;margin-bottom:18px;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <span class="brand">MED-TERM AUDIO SEARCH</span>
+    <a href="#problem">The Problem</a>
+    <a href="#idea">The Big Idea</a>
+    <a href="#workflow">How It Works</a>
+    <a href="#demo">Try the Idea</a>
+    <a href="#status">Built vs. Planned</a>
+    <a href="#safety">Safety First</a>
+    <a href="#glossary">Jargon Buster</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="kicker">A plain-language guide</span>
+    <h1>Teaching a computer to <em>recognize spoken medical terms</em> by their sound</h1>
+    <p class="sub">
+      This project builds a searchable library of medical-term pronunciations. When someone says a
+      drug or condition name out loud, the system compares the <strong>sound itself</strong> against
+      that library and suggests the most likely terms — for a human to review.
+    </p>
+    <div class="analogy">💡 <span><strong>Think of it like Shazam</strong> — but instead of naming a song, it names the medical term it just heard.</span></div>
+  </div>
+</header>
+
+<!-- ================= THE PROBLEM ================= -->
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-label">Why this exists</div>
+    <h2>Voice typing mishears medical words — and that can matter</h2>
+    <p class="lead">
+      When doctors or patients dictate notes, speech-to-text software often guesses wrong on
+      uncommon medical names. The text it produces may look plausible while pointing to the
+      wrong word entirely. In healthcare, a wrong drug name is not a harmless typo.
+    </p>
+
+    <div class="example">
+      <div class="side said">
+        <div class="tag">The speaker actually said</div>
+        <div class="word">“metformin”</div>
+        <p style="font-size:13.5px;color:var(--ink-soft);margin-top:4px;">a common diabetes medication</p>
+      </div>
+      <div class="arrow">➜</div>
+      <div class="side heard">
+        <div class="tag">Speech-to-text wrote down</div>
+        <div class="word">“met for men”</div>
+        <p style="font-size:13.5px;color:var(--ink-soft);margin-top:4px;">nonsense — the real term is lost</p>
+      </div>
+      <div class="note">
+        <strong>The key insight:</strong> even when the <em>text</em> is wrong, the original <em>sound</em>
+        still contains the true pronunciation. This project listens to that sound as a second source of
+        evidence — like asking a bystander “what did you hear?” after the first person wrote it down wrong.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= THE BIG IDEA ================= -->
+<section id="idea" style="background:#f4efe7;">
+  <div class="wrap">
+    <div class="sec-label">The big idea</div>
+    <h2>Three ingredients, one careful search</h2>
+    <p class="lead">
+      Everything in the project serves a single flow: build a trusted dictionary, give each term
+      a reference “voice,” then compare new recordings against those voices.
+    </p>
+    <div class="grid cols-3">
+      <div class="card">
+        <div class="num-badge">1</div>
+        <h3>A curated medical dictionary</h3>
+        <p>
+          Not paragraphs of medical advice — a tidy, version-controlled list of terms. Each entry has an
+          official name, alternative names (aliases), a language tag, and a record of where it came from
+          and whether a human has reviewed it.
+        </p>
+      </div>
+      <div class="card">
+        <div class="num-badge">2</div>
+        <h3>Reference recordings of each term</h3>
+        <p>
+          Every term gets one or more short audio clips of how it sounds — either approved human
+          recordings or clearly-labeled synthetic (computer-generated) speech. Different voices and
+          accents can all point to the same term.
+        </p>
+      </div>
+      <div class="card">
+        <div class="num-badge">3</div>
+        <h3>Sound comparison by numbers</h3>
+        <p>
+          A speech model converts every clip — references and new queries alike — into a list of numbers
+          (an “embedding”). Clips that <em>sound</em> alike end up with similar numbers, so finding a match
+          becomes measuring which numbers are closest.
+        </p>
+      </div>
+    </div>
+    <p style="margin-top:26px;font-size:14.5px;color:var(--ink-soft);max-width:720px;">
+      <strong>Important:</strong> the system never decides anything on its own. It produces a ranked list of
+      candidates plus the evidence behind each one, and a human reviewer makes the final call.
+      If the evidence is weak, the system says “I don’t know” (abstains) rather than guessing.
+    </p>
+  </div>
+</section>
+
+<!-- ================= WORKFLOW ================= -->
+<section id="workflow">
+  <div class="wrap">
+    <div class="sec-label">The workflow</div>
+    <h2>How the pipeline works, step by step</h2>
+    <p class="lead">
+      The full system is being built in six phases. Each phase below is explained in plain language,
+      with a badge showing how far along it is.
+    </p>
+
+    <div class="phase">
+      <div class="icon">📚</div>
+      <div>
+        <h3>Phase 1 — Build and freeze the dictionary</h3>
+        <p class="plain">Gather official medical vocabularies, check the files haven’t been tampered with, and tidy every term into a clean database.</p>
+        <p class="detail">
+          Each source (e.g., MeSH, Orphadata, France’s BDPM drug database, a small Wikidata set) is downloaded,
+          verified with a checksum — a digital fingerprint — and stored with its version and license. Nothing is
+          silently merged: two terms that merely <em>look similar</em> stay separate. The result is a frozen,
+          reproducible snapshot, so everyone can tell exactly which dictionary version produced an answer.
+        </p>
+        <div class="pills"><span class="pill built">✓ Built</span></div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="icon">🎙️</div>
+      <div>
+        <h3>Phase 2 — Give every term a voice</h3>
+        <p class="plain">Create one short, isolated pronunciation clip for each term — a computer voice to start, human recordings where approved.</p>
+        <p class="detail">
+          Synthetic speech is a practical way to cover tens of thousands of terms, but a computer voice can
+          mispronounce medical names. So every synthetic clip stays labeled “synthetic” and must pass a
+          pronunciation review before it’s trusted. The exact voice model and settings are pinned down and
+          recorded, so a clip can always be reproduced — and failed generations are listed openly rather than
+          hidden inside a “completed” batch.
+        </p>
+        <div class="pills"><span class="pill built">✓ Built</span></div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="icon">🔢</div>
+      <div>
+        <h3>Phase 3 — Turn sound into searchable numbers</h3>
+        <p class="plain">Feed every reference clip through the same speech model and store the resulting “fingerprint” of numbers in a searchable index.</p>
+        <p class="detail">
+          Each clip is converted to a standard format (16&nbsp;kHz, single channel), checked for silence or
+          defects, then encoded by a pretrained speech model (XLS-R) into a 2,048-number fingerprint.
+          Every index is bound to the exact model version and settings that created it — a query encoded
+          differently is rejected, because fingerprints from different recipes can’t be compared.
+        </p>
+        <div class="pills"><span class="pill built">✓ Built</span></div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="icon">🔍</div>
+      <div>
+        <h3>Phase 4 — Search with a new recording</h3>
+        <p class="plain">Take a short query clip, turn it into numbers with the identical recipe, and find the closest-sounding reference clips.</p>
+        <p class="detail">
+          For a single, isolated word this already works today. For longer recordings (like a dictated
+          consultation), the plan is to first <em>locate</em> the moments where a medical term was probably said —
+          using the transcript’s timing as a hint, while keeping the original audio and its exact time span —
+          then search each of those short segments. Sound-alike matches survive even when the transcript
+          spelled the term completely wrong.
+        </p>
+        <div class="pills">
+          <span class="pill built">✓ Single-clip search built</span>
+          <span class="pill planned">→ Finding terms inside long recordings: planned</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="icon">🧩</div>
+      <div>
+        <h3>Phase 5 — Combine sound evidence with text evidence</h3>
+        <p class="plain">Merge the “what it sounded like” candidates with the “what the transcript said” candidates into one ranked, explainable list.</p>
+        <p class="detail">
+          Sound scores and text scores speak different languages, so they can’t simply be added together —
+          the project requires a documented, tested method for combining them, frozen before final evaluation.
+          The reviewer sees every ingredient separately: sound similarity, matched pronunciation, text evidence,
+          confidence, and the reasons behind each suggestion. If nothing is convincing, the system abstains
+          or flags the item for human review — it never auto-fills an answer.
+        </p>
+        <div class="pills"><span class="pill planned">→ Planned</span></div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="icon">📏</div>
+      <div>
+        <h3>Phase 6 — Measure honestly, then improve</h3>
+        <p class="plain">Test on fresh voices, noisy rooms, tricky sound-alike drug names, and recordings of people saying nothing medical at all.</p>
+        <p class="detail">
+          The evaluation set uses speakers the system has never trained on, includes deliberately confusable
+          pairs and out-of-dictionary speech, and measures both “did it find the right term?” and “did it
+          correctly stay silent when there was no term to find?”. An experimental technique that compresses
+          the fingerprint into a smaller, sharper form (a trained 256-number projection) exists, but it only
+          replaces the baseline if these measurements prove it better.
+        </p>
+        <div class="pills">
+          <span class="pill partial">◐ Experimental improver built, not yet proven</span>
+          <span class="pill planned">→ Full evaluation: planned</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DEMO ================= -->
+<section id="demo" style="background:#f4efe7;">
+  <div class="wrap">
+    <div class="sec-label">Try the idea</div>
+    <h2>A tiny simulation of sound matching</h2>
+    <p class="lead">
+      Pick a scenario and watch how the system turns a recording into a ranked list of candidates.
+      (This is an illustration with made-up scores — not the real system.)
+    </p>
+
+    <div class="demo">
+      <div class="demo-btns" id="demoBtns">
+        <button data-scenario="clear" class="active">🎙️ Clear voice: “metformin”</button>
+        <button data-scenario="noisy">🔉 Noisy room: “metformin”</button>
+        <button data-scenario="unrelated">💬 Unrelated chit-chat</button>
+      </div>
+
+      <div class="wavebox" id="wavebox"></div>
+      <div class="wave-caption" id="waveCaption"></div>
+
+      <div id="results"></div>
+
+      <div class="demo-verdict" id="verdict"></div>
+
+      <div class="demo-note">
+        <strong>What you’re seeing:</strong> the waveform becomes a number-fingerprint, which is compared
+        against every reference pronunciation. The bar length is the similarity score. A high score is a
+        <em>hint, not a proof</em> — it is not “the probability the term is correct.” That’s why a human
+        reviewer always gets the final word, and why the third scenario ends in “abstain” instead of a guess.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= STATUS ================= -->
+<section id="status">
+  <div class="wrap">
+    <div class="sec-label">Where things stand</div>
+    <h2>What’s built today vs. what’s still planned</h2>
+    <p class="lead">
+      The document is careful to separate working software from ideas on the roadmap.
+      Here is the honest scoreboard.
+    </p>
+    <div class="status-board">
+      <div class="status-col yes">
+        <h3>✅ Working today</h3>
+        <ul>
+          <li>Verified, version-controlled medical dictionary (SQLite database + exports)</li>
+          <li>Text search over term labels and spellings</li>
+          <li>Batch generation of synthetic pronunciation clips, with failure tracking</li>
+          <li>Sound-fingerprint encoding and the searchable audio index</li>
+          <li>Searching the index with a single, isolated spoken clip</li>
+          <li>“Abstain” behavior when filtering leaves no candidates</li>
+        </ul>
+      </div>
+      <div class="status-col no">
+        <h3>🛠️ Not built yet / not proven</h3>
+        <ul>
+          <li>Finding medical terms inside long, continuous recordings</li>
+          <li>Combining sound and text evidence into one ranked list</li>
+          <li>Reliably saying “no match” to unrelated speech using score thresholds</li>
+          <li>Proof that the experimental compressed fingerprint actually improves results</li>
+          <li>The existing web API route using the audio index (it currently only uses text)</li>
+          <li>Any claim of clinical or medication-safety validation</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SAFETY ================= -->
+<section id="safety" style="background:#f4efe7;">
+  <div class="wrap">
+    <div class="sec-label">Safety principles</div>
+    <h2>Designed to assist, never to decide</h2>
+    <p class="lead">
+      Because mistakes with drug names can cause real harm, the whole pipeline is built around
+      caution. Four rules run through every phase.
+    </p>
+    <div class="grid cols-2">
+      <div class="card">
+        <div class="safety-icon">🧑‍⚖️</div>
+        <h3>A human always decides</h3>
+        <p>
+          The output is advice for a reviewer, never an automatic correction. The original recording and
+          transcript are always preserved untouched, and the system is configured so it cannot write its
+          suggestions back into any record (<code>auto_commit_enabled = false</code>).
+        </p>
+      </div>
+      <div class="card">
+        <div class="safety-icon">✋</div>
+        <h3>“I don’t know” is a valid answer</h3>
+        <p>
+          When evidence is weak, ambiguous, or the speech isn’t medical at all, the system abstains or
+          flags for review rather than forcing a guess. Look-alike/sound-alike (LASA) drug names and
+          low-confidence matches get extra scrutiny.
+        </p>
+      </div>
+      <div class="card">
+        <div class="safety-icon">🧾</div>
+        <h3>Every answer is auditable</h3>
+        <p>
+          Each suggestion carries its evidence: which reference clips matched, the sound and text scores
+          separately, where in the recording the term was heard, and exactly which dictionary and index
+          versions were used — so a reviewer can retrace every step.
+        </p>
+      </div>
+      <div class="card">
+        <div class="safety-icon">🚫</div>
+        <h3>No medical claims</h3>
+        <p>
+          This is a reviewer-assistance prototype for terminology lookup. It does not diagnose, prescribe,
+          or establish medication safety — and context like a diagnosis or dose can never invent a drug
+          candidate out of thin air.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= GLOSSARY ================= -->
+<section id="glossary">
+  <div class="wrap">
+    <div class="sec-label">Jargon buster</div>
+    <h2>The technical words, translated</h2>
+    <p class="lead">Every specialized term in the original document, in one sentence each.</p>
+    <div class="grid cols-3 glossary">
+      <div class="card"><dt>Audio embedding</dt><dd>A list of numbers that captures what a sound clip sounds like — its mathematical fingerprint.</dd></div>
+      <div class="card"><dt>Cosine similarity</dt><dd>A score for how alike two fingerprints are — like measuring whether two arrows point the same direction.</dd></div>
+      <div class="card"><dt>RAG (retrieval-augmented generation)</dt><dd>Here it just means “look things up in a controlled dictionary first” — no AI text-writing involved in this project.</dd></div>
+      <div class="card"><dt>ASR (automatic speech recognition)</dt><dd>Speech-to-text software — the thing that heard “met for men.”</dd></div>
+      <div class="card"><dt>TTS (text-to-speech)</dt><dd>The reverse: a computer voice that reads terms aloud to create reference recordings.</dd></div>
+      <div class="card"><dt>Vector index</dt><dd>A filing cabinet for number-fingerprints, organized so the most similar ones can be found fast.</dd></div>
+      <div class="card"><dt>XLS-R / wav2vec2</dt><dd>The off-the-shelf speech model used to create the fingerprints; it was trained on many languages, but not specifically on medical terms.</dd></div>
+      <div class="card"><dt>Concept ID</dt><dd>The dictionary’s stable ID number for a medical term — the bridge that links a sound match back to an official entry.</dd></div>
+      <div class="card"><dt>Alias</dt><dd>An alternative name for the same concept (a brand name vs. a generic name, or the same term in another language).</dd></div>
+      <div class="card"><dt>LASA terms</dt><dd>“Look-alike, sound-alike” drug names — pairs like <em>Celebrex / Celexa</em> that are dangerously easy to confuse.</dd></div>
+      <div class="card"><dt>Abstain</dt><dd>The system’s way of saying “the evidence isn’t good enough — a human should look at this.”</dd></div>
+      <div class="card"><dt>Recall@5 / @20</dt><dd>A test score: how often the correct term appears in the top 5 (or top 20) suggestions.</dd></div>
+      <div class="card"><dt>Checksum / SHA-256</dt><dd>A digital fingerprint of a file, used to prove a download or recording hasn’t changed or been corrupted.</dd></div>
+      <div class="card"><dt>Pooling &amp; 2,048-D</dt><dd>Summarizing a whole clip’s second-by-second features into one fixed list of 2,048 numbers.</dd></div>
+      <div class="card"><dt>Held-out test set</dt><dd>Recordings kept in a locked drawer during development, used only for final, honest scoring.</dd></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="disc">
+      <strong>Scope note:</strong> This page is a plain-language rendering of the technical document
+      “Medical-Term Retrieval with Audio Embeddings.” It describes a reviewer-assistance research
+      prototype. It is not medical software, provides no medical advice, and makes no diagnostic,
+      prescribing, or medication-safety claims.
+    </div>
+    <p>Built from the project’s pipeline documentation · Sound-similarity scores shown in the demo are illustrative.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const scenarios = {
+    clear: {
+      caption: "A clean recording of someone saying “metformin”, converted into its number-fingerprint and compared with the reference library…",
+      results: [
+        { term: "metformin",        sub: "reference: synthetic voice · en", score: 0.91 },
+        { term: "metformin",        sub: "reference: human recording, speaker B · en", score: 0.88 },
+        { term: "metolazone",       sub: "a different drug that sounds a bit alike", score: 0.61 },
+        { term: "medroxyprogesterone", sub: "shares the “me-…-pro-” opening", score: 0.54 }
+      ],
+      verdict: "✋ Review: two strong matches point to the same concept “metformin”. The system groups them, shows its evidence, and waits for a human to confirm."
+    },
+    noisy: {
+      caption: "The same word recorded in a noisy break room. The fingerprint is blurrier, so every score drops…",
+      results: [
+        { term: "metformin",   sub: "reference: human recording, speaker B · en", score: 0.72 },
+        { term: "metolazone",  sub: "noise makes this sound-alike closer than usual", score: 0.69 },
+        { term: "metronidazole", sub: "another confusable “metr-” drug name", score: 0.63 },
+        { term: "methyldopa",  sub: "weak partial match", score: 0.52 }
+      ],
+      verdict: "⚠️ Review flagged: the top two candidates are close together and both are on the look-alike/sound-alike watch list. The system presents both and explicitly asks a human to decide."
+    },
+    unrelated: {
+      caption: "A recording of someone chatting about weekend plans — no medical term was said at all…",
+      results: [
+        { term: "metformin",  sub: "best match found, but very weak", score: 0.31 },
+        { term: "menthol",    sub: "weak partial match", score: 0.28 },
+        { term: "melatonin",  sub: "weak partial match", score: 0.25 }
+      ],
+      verdict: "🚫 Abstain: every score is far below the review threshold. Instead of guessing, the system reports “no medical term detected” — staying silent is the safe answer here."
+    }
+  };
+
+  const wavebox  = document.getElementById('wavebox');
+  const caption  = document.getElementById('waveCaption');
+  const results  = document.getElementById('results');
+  const verdict  = document.getElementById('verdict');
+  const btns     = document.querySelectorAll('#demoBtns button');
+
+  // build waveform bars
+  const BAR_COUNT = 56;
+  const bars = [];
+  for (let i = 0; i < BAR_COUNT; i++){
+    const b = document.createElement('div');
+    b.className = 'bar';
+    b.style.height = '8px';
+    wavebox.appendChild(b);
+    bars.push(b);
+  }
+
+  function randomizeWave(energy){
+    bars.forEach(b => {
+      const base = energy * (18 + Math.random() * 66);
+      const quiet = 6 + Math.random() * 14;
+      // simulate speech bursts: some regions quiet, some loud
+      b.style.height = (Math.random() < 0.22 ? quiet : base) + 'px';
+    });
+  }
+
+  function renderScenario(key){
+    const s = scenarios[key];
+    caption.textContent = s.caption;
+    randomizeWave(key === 'noisy' ? 0.75 : key === 'unrelated' ? 0.45 : 1);
+
+    results.innerHTML = '';
+    s.results.forEach((r, i) => {
+      const row = document.createElement('div');
+      row.className = 'result-row' + (i === 0 ? ' top' : '');
+      row.innerHTML =
+        '<div class="rhead"><span class="term">' + r.term +
+        ' <span style="font-weight:400;color:var(--ink-soft);font-size:12.5px;">— ' + r.sub + '</span></span>' +
+        '<span class="score">' + r.score.toFixed(2) + '</span></div>' +
+        '<div class="meter"><div class="fill"></div></div>';
+      results.appendChild(row);
+      requestAnimationFrame(() => {
+        setTimeout(() => { row.querySelector('.fill').style.width = (r.score * 100) + '%'; }, 60 + i * 120);
+      });
+    });
+
+    verdict.textContent = s.verdict;
+  }
+
+  btns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      btns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderScenario(btn.dataset.scenario);
+    });
+  });
+
+  renderScenario('clear');
+})();
+</script>
+
+</body>
+</html>
